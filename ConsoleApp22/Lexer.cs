@@ -55,10 +55,10 @@ namespace ConsoleApp22
                 throw new Exception($"Unexpected value at position {Position}");
         }
 
-        private bool IsNext(params char[] possibleValues)
+        public bool IsNext(params char[] possibleValues)
             => IsNext(x => possibleValues.Any(k => k == x));
 
-        private bool IsNext(Predicate<char> match)
+        public bool IsNext(Predicate<char> match)
         {
             var lookahead = _scanner.Peek();
             return lookahead.HasValue && match(lookahead.Value);

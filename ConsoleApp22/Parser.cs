@@ -75,20 +75,43 @@ namespace ConsoleApp22
 
         private ASTNode Factor()
         {
-            if (_lexer.Peek().TokenType == TokenType.OPEN_PAR)
+            ASTNode node;
+
+            if (IsNext(TokenType.OPEN_PAR))
             {
-                _lexer.Accept();
-                var node = Expression();
-                _lexer.Expect(x => x == Lexer.CLOSE_PAR);
-                _lexer.Accept();
+                Accept();
+                node = Expression();
+                Expect(TokenType.CLOSE_PAR);
+                Accept();
                 return node;
             }
+            else
+            {
+                node = ParseNumber();
+            }
 
-            if (_lexer.Peek().TokenType == TokenType.NUMBER)
-                return new NumberASTNode(_lexer.ReadNext());
-
-            throw new Exception($"Unexpected token {_lexer.Peek().Value} at position : {_lexer.Position} ");
+            return node;
         }
+
+        private ASTNode ParseNumber()
+        {
+            Expect(TokenType.NUMBER);
+            return new NumberASTNode(Accept());
+        }
+
+        private Token Accept() => _lexer.ReadNext();
+
+        private void Expect(TokenType tokenType)
+        {
+            if (!IsNext(tokenType))
+                throw new Exception($"Unexpected token {_lexer.Peek()} at position {_lexer.Position}");
+        }
+
+        private bool IsNext(params TokenType[] possibleTokens)
+            => IsNext(x => possibleTokens.Any(k => k == x));
+
+        private bool IsNext(Predicate<TokenType> match)
+            => match(_lexer.Peek().TokenType);
 
     }
 }
